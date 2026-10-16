@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#fff8ed">
+<title>翻翻樂｜可愛翻牌配對</title>
+<style>
+:root{
+  --cream:#fff8ed;--cream-2:#fff1dc;--pink:#f7c8d0;--pink-dark:#d97791;
+  --peach:#ffd9bd;--yellow:#ffe9a8;--mint:#cfe9d9;--lavender:#e3d9f7;
+  --ink:#66545a;--muted:#9a8589;--white:#fffdf9;--shadow:0 8px 24px rgba(124,91,91,.10);
+  --line:rgba(142,109,111,.14);--green:#8dbda1;
+}
+*{box-sizing:border-box}
+html{min-height:100%;background:var(--cream)}
+body{margin:0;min-height:100vh;background:
+ radial-gradient(circle at 8% 4%,rgba(255,226,176,.38),transparent 24rem),
+ radial-gradient(circle at 95% 14%,rgba(229,215,248,.4),transparent 23rem),var(--cream);
+ color:var(--ink);font-family:ui-rounded,"Arial Rounded MT Bold","Noto Sans TC",system-ui,sans-serif}
+button,select{font:inherit}
+button{cursor:pointer}
+button:focus-visible,select:focus-visible{outline:3px solid #d9a3b3;outline-offset:3px}
+button:disabled{cursor:not-allowed;opacity:.58}
+.app{width:min(1100px,100%);margin:0 auto;padding:24px 22px 36px}
+.brand{display:flex;align-items:center;justify-content:center;gap:12px;margin:8px 0 4px}
+.brand-mark{width:48px;height:48px;display:grid;place-items:center;background:#ffe0e6;border-radius:17px;font-size:26px;box-shadow:0 5px 0 #f3c5ce}
+h1{font-size:clamp(2rem,5vw,3rem);letter-spacing:.08em;margin:0;font-weight:900;color:#a9677a}
+.subtitle{text-align:center;color:var(--muted);margin:7px 0 24px;font-size:.98rem}
+.panel{background:rgba(255,253,249,.88);border:1px solid rgba(255,255,255,.9);border-radius:28px;box-shadow:var(--shadow)}
+.home{max-width:760px;margin:0 auto;padding:clamp(22px,5vw,42px)}
+.section-title{text-align:center;font-size:1.2rem;margin:0 0 7px;font-weight:850}
+.section-note{text-align:center;color:var(--muted);margin:0 0 20px;font-size:.92rem}
+.theme-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.theme-option{border:2px solid transparent;border-radius:18px;background:#fff9f1;padding:14px 7px 12px;color:var(--ink);transition:transform .16s,border-color .16s,background .16s}
+.theme-option:hover{transform:translateY(-2px)}
+.theme-option[aria-pressed="true"]{border-color:#d991a5;background:#fff0f2;box-shadow:0 3px 0 #f1d2d8}
+.theme-emoji{font-size:2rem;display:block;margin-bottom:7px}
+.theme-label{font-size:.9rem;font-weight:800;display:block}
+.field-label{font-weight:800;display:block;margin:24px 0 10px}
+.difficulty-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.difficulty-option{border:2px solid transparent;border-radius:16px;padding:13px 8px;background:#f7f1ff;color:var(--ink);font-weight:800;transition:.16s}
+.difficulty-option:nth-child(2){background:#fff1e6}
+.difficulty-option:nth-child(3){background:#eaf5ee}
+.difficulty-option[aria-pressed="true"]{border-color:#d991a5;box-shadow:0 3px 0 #f1d2d8}
+.difficulty-option small{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin-top:4px}
+.primary-btn,.secondary-btn,.soft-btn{border:0;border-radius:16px;padding:13px 20px;font-weight:850;transition:transform .16s,filter .16s}
+.primary-btn{background:#d98da2;color:white;box-shadow:0 5px 0 #bd7389}
+.primary-btn:hover,.secondary-btn:hover,.soft-btn:hover{filter:brightness(1.025);transform:translateY(-1px)}
+.primary-btn:active,.secondary-btn:active,.soft-btn:active{transform:translateY(2px);box-shadow:none}
+.start-btn{width:100%;margin-top:28px;font-size:1.08rem;padding:15px}
+.small-note{text-align:center;color:var(--muted);font-size:.8rem;margin:18px 0 0}
+.game{display:none}
+.game-top{padding:17px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.game-brand{display:flex;align-items:center;gap:10px}
+.mini-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:15px;background:#ffe0e6;font-size:23px}
+.game-name{font-size:1.18rem;font-weight:900;color:#a9677a}
+.game-sub{font-size:.8rem;color:var(--muted);margin-top:2px}
+.stats{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.stat{background:#fff7ec;border-radius:14px;padding:9px 13px;min-width:92px;text-align:center}
+.stat-label{font-size:.72rem;color:var(--muted);font-weight:750;display:block;margin-bottom:3px}
+.stat-value{font-size:1.05rem;font-weight:900;font-variant-numeric:tabular-nums}
+.stat.best{background:#f0eafc}
+.toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;margin:0 0 16px}
+.soft-btn{background:#fffdf8;color:var(--ink);border:1px solid var(--line);box-shadow:0 3px 0 rgba(140,110,110,.08);padding:10px 14px;font-size:.9rem}
+.soft-btn.pink{background:#ffedf0}
+.theme-select{appearance:none;border:1px solid var(--line);background:#fffdf8;color:var(--ink);border-radius:14px;padding:10px 34px 10px 13px;font-weight:800;max-width:100%;background-image:linear-gradient(45deg,transparent 50%,#a9878c 50%),linear-gradient(135deg,#a9878c 50%,transparent 50%);background-position:calc(100% - 16px) 50%,calc(100% - 11px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+.game-message{text-align:center;min-height:25px;color:var(--muted);font-size:.92rem;margin:0 0 12px}
+.board-wrap{padding:clamp(12px,2.6vw,24px);background:rgba(255,253,249,.78);border-radius:26px;border:1px solid rgba(255,255,255,.9);box-shadow:var(--shadow)}
+.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(7px,1.3vw,13px);max-width:900px;margin:0 auto}
+.card{position:relative;border:0;padding:0;background:transparent;aspect-ratio:1/1;perspective:700px;min-width:0}
+.card-inner{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .38s cubic-bezier(.2,.75,.25,1)}
+.card.is-open .card-inner,.card.is-matched .card-inner{transform:rotateY(180deg)}
+.card-face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border-radius:clamp(12px,1.8vw,20px);backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
+.card-back{background:linear-gradient(145deg,#ffe7e8,#f8cbd5);border:2px solid rgba(255,255,255,.8);box-shadow:0 4px 0 #edc0ca;transition:filter .16s,transform .16s}
+.card:not(:disabled):hover .card-back{filter:brightness(1.025);transform:translateY(-2px)}
+.card-back::before{content:"";position:absolute;width:72%;height:72%;border:1px dashed rgba(255,255,255,.68);border-radius:15px;transform:rotate(-8deg)}
+.heart{position:relative;font-size:clamp(1.3rem,3.3vw,2.3rem);filter:drop-shadow(0 2px 0 rgba(193,111,135,.15))}
+.card-front{transform:rotateY(180deg);background:var(--card-bg,#fff1dd);border:2px solid rgba(255,255,255,.95);box-shadow:0 4px 0 rgba(140,110,110,.11)}
+.card-front::after{content:"";position:absolute;inset:7%;border:1px solid rgba(255,255,255,.75);border-radius:12px;pointer-events:none}
+.card-symbol{font-size:clamp(1.65rem,5.1vw,3.8rem);line-height:1;filter:drop-shadow(0 3px 0 rgba(128,90,90,.08));position:relative;z-index:1;user-select:none}
+.card.is-matched .card-front{box-shadow:0 0 0 2px #a7d5b8,0 4px 0 #a8d0b4}
+.card.is-matched .card-front::before{content:"✓";position:absolute;right:7%;top:6%;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#9bc9a9;color:white;font-size:13px;font-weight:900;z-index:2}
+.card.is-matched{animation:match-pop .36s ease-out}
+@keyframes match-pop{0%{transform:scale(.94)}55%{transform:scale(1.045)}100%{transform:scale(1)}}
+.footer-tip{text-align:center;color:var(--muted);font-size:.82rem;margin:15px 0 0}
+.modal-backdrop{position:fixed;inset:0;background:rgba(88,67,73,.28);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:20px;z-index:20}
+.modal-backdrop.show{display:flex}
+.modal{width:min(420px,100%);background:var(--white);border-radius:26px;padding:28px 24px 23px;box-shadow:0 20px 60px rgba(83,58,65,.2);text-align:center;animation:modal-in .2s ease-out}
+@keyframes modal-in{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.modal-icon{font-size:2.5rem;margin-bottom:7px}
+.modal h2{margin:0 0 9px;font-size:1.3rem}
+.modal p{color:var(--muted);line-height:1.65;margin:0 0 22px}
+.modal-actions{display:flex;justify-content:center;gap:10px}
+.modal-actions button{min-width:112px}
+.secondary-btn{background:#f4eef2;color:var(--ink);box-shadow:0 4px 0 #e7dce2}
+.victory{display:none;max-width:560px;margin:30px auto;padding:clamp(25px,5vw,44px);text-align:center}
+.victory.show{display:block;animation:modal-in .3s ease-out}
+.victory-emoji{font-size:4.5rem;animation:celebrate 1.1s ease-in-out infinite alternate}
+@keyframes celebrate{from{transform:rotate(-7deg) scale(.98)}to{transform:rotate(7deg) scale(1.06)}}
+.victory h2{font-size:2rem;color:#a9677a;margin:10px 0}
+.victory p{color:var(--muted);line-height:1.65}
+.result-time{font-size:2.3rem;font-weight:950;color:#8b688d;font-variant-numeric:tabular-nums;margin:18px 0 8px}
+.best-badge{display:inline-block;background:#eaf5ed;color:#558c68;border-radius:999px;padding:8px 15px;font-weight:850;margin:4px 0 22px}
+.victory-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.victory-actions button{min-width:145px}
+.hidden{display:none!important}
+@media(max-width:700px){
+ .app{padding:15px 12px 26px}.subtitle{margin-bottom:18px}
+ .home{padding:23px 16px;border-radius:23px}
+ .theme-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .theme-option{display:flex;align-items:center;justify-content:flex-start;gap:10px;padding:12px;text-align:left}
+ .theme-emoji{font-size:1.8rem;margin:0;width:38px}
+ .theme-label{font-size:.9rem}
+ .game-top{padding:13px;gap:12px;border-radius:21px}
+ .game-brand{width:100%}
+ .stats{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ .stat{min-width:0;padding:8px 4px}
+ .stat-value{font-size:.98rem}
+ .toolbar{gap:7px}
+ .soft-btn{padding:10px 11px;font-size:.83rem}
+ .board{gap:7px}
+ .board-wrap{padding:10px;border-radius:19px}
+ .card-face{border-radius:11px}
+ .card-front::after{inset:5%;border-radius:8px}
+ .card.is-matched .card-front::before{width:17px;height:17px;font-size:10px}
+}
+@media(max-width:390px){
+ .app{padding-left:8px;padding-right:8px}
+ .difficulty-option{font-size:.88rem;padding:12px 5px}
+ .difficulty-option small{font-size:.7rem}
+ .board{gap:5px}
+ .card-face{border-radius:9px}
+ .toolbar .soft-btn{padding:9px 10px}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="brand">
+    <div class="brand-mark" aria-hidden="true">♡</div>
+    <h1>翻翻樂</h1>
+  </header>
+  <p class="subtitle">翻開小小驚喜，找到相同的好朋友 ✨</p>
+
+  <main id="homeScreen" class="home panel">
+    <h2 class="section-title">今天想玩哪一種主題？</h2>
+    <p class="section-note">選一個喜歡的世界，開始配對小冒險吧！</p>
+    <div class="theme-grid" id="homeThemeGrid" role="group" aria-label="選擇遊戲主題">
+      <button class="theme-option" data-theme="animals" aria-pressed="true"><span class="theme-emoji">🐻</span><span class="theme-label">可愛動物</span></button>
+      <button class="theme-option" data-theme="desserts" aria-pressed="false"><span class="theme-emoji">🍰</span><span class="theme-label">甜甜點心</span></button>
+      <button class="theme-option" data-theme="space" aria-pressed="false"><span class="theme-emoji">🌙</span><span class="theme-label">夢幻星空</span></button>
+      <button class="theme-option" data-theme="plants" aria-pressed="false"><span class="theme-emoji">🌷</span><span class="theme-label">花花草草</span></button>
+    </div>
+    <label class="field-label">選擇難度</label>
+    <div class="difficulty-grid" id="difficultyGrid" role="group" aria-label="選擇遊戲難度">
+      <button class="difficulty-option" data-difficulty="12" aria-pressed="true">簡單<small>12 張・6 組</small></button>
+      <button class="difficulty-option" data-difficulty="20" aria-pressed="false">普通<small>20 張・10 組</small></button>
+      <button class="difficulty-option" data-difficulty="30" aria-pressed="false">困難<small>30 張・15 組</small></button>
+    </div>
+    <button id="startButton" class="primary-btn start-btn">開始遊戲　✦</button>
+    <p class="small-note">每局有 3 次提示｜不需要音效，享受輕鬆配對時光</p>
+  </main>
+
+  <section id="gameScreen" class="game" aria-label="遊戲畫面">
+    <div class="game-top panel">
+      <div class="game-brand">
+        <div class="mini-mark" aria-hidden="true">♡</div>
+        <div><div class="game-name">翻翻樂</div><div class="game-sub" id="gameSubtitle">可愛動物・簡單</div></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="stat-label">⏱ 遊戲時間</span><span class="stat-value" id="timerValue">00:00</span></div>
+        <div class="stat best"><span class="stat-label">✧ 最佳時間</span><span class="stat-value" id="bestValue">尚無紀錄</span></div>
+        <div class="stat"><span class="stat-label">♡ 剩餘提示</span><span class="stat-value" id="hintValue">3 次</span></div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <button id="hintButton" class="soft-btn pink">♡ 提示（3）</button>
+      <button id="restartButton" class="soft-btn">↻ 重新開始</button>
+      <label class="hidden" for="themeSelect">更換主題</label>
+      <select id="themeSelect" class="theme-select" aria-label="更換主題">
+        <option value="animals">🐻 可愛動物</option>
+        <option value="desserts">🍰 甜甜點心</option>
+        <option value="space">🌙 夢幻星空</option>
+        <option value="plants">🌷 花花草草</option>
+      </select>
+      <button id="homeButton" class="soft-btn">⌂ 返回首頁</button>
+    </div>
+    <p class="game-message" id="gameMessage" aria-live="polite">找出所有相同圖案吧！</p>
+    <div class="board-wrap">
+      <div id="board" class="board" aria-label="翻牌配對區"></div>
+    </div>
+    <p class="footer-tip">記住圖案的位置，慢慢找到每一對 ♡</p>
+  </section>
+
+  <section id="victoryScreen" class="victory panel" aria-live="polite">
+    <div class="victory-emoji" aria-hidden="true">🎉</div>
+    <h2>配對成功！</h2>
+    <p>每一對小夥伴都找到彼此了，做得好！</p>
+    <div class="result-time" id="resultTime">00:00</div>
+    <div id="recordResult" class="best-badge">完成本局</div>
+    <div class="victory-actions">
+      <button id="replayButton" class="primary-btn">再玩一次 ✦</button>
+      <button id="victoryHomeButton" class="secondary-btn">返回首頁</button>
+    </div>
+  </section>
+</div>
+
+<div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalText">
+  <div class="modal">
+    <div id="modalIcon" class="modal-icon" aria-hidden="true">♡</div>
+    <h2 id="modalTitle">確定要離開嗎？</h2>
+    <p id="modalText">目前遊戲進度將會消失。</p>
+    <div class="modal-actions">
+      <button id="modalCancel" class="secondary-btn">取消</button>
+      <button id="modalConfirm" class="primary-btn">確定</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const THEMES = {
+    animals: {label:"可愛動物", short:"動物", cards:[
+      ["🐻","#fff0d9"],["🐰","#fce8ef"],["🐱","#f7e5d8"],["🐶","#f5e3ce"],["🐼","#eef0f4"],
+      ["🦊","#ffe3d1"],["🐸","#e4f2d8"],["🐥","#fff0b8"],["🦋","#e3e8ff"],["🐨","#e9e4df"],
+      ["🦄","#f1e3ff"],["🐹","#f8e3c9"],["🦔","#eee0d0"],["🐢","#dff0d8"],["🦉","#eee5fb"]
+    ]},
+    desserts: {label:"甜甜點心", short:"甜點", cards:[
+      ["🍰","#ffe4e8"],["🧁","#f8e4f5"],["🍩","#ffe7cc"],["🍪","#f4dfc4"],["🍮","#fff0bd"],
+      ["🍦","#e5f3ff"],["🍫","#ead9cf"],["🍬","#ffe1e6"],["🍭","#f6e0ff"],["🧋","#f5e2d0"],
+      ["🥞","#ffedc7"],["🧇","#f4dfb8"],["🍓","#ffe3e7"],["🍒","#ffdfe0"],["🍯","#fff0b8"]
+    ]},
+    space: {label:"夢幻星空", short:"星空", cards:[
+      ["🌙","#e9e2ff"],["⭐","#fff0b8"],["🌟","#ffe5ba"],["☁️","#e5f3ff"],["🪐","#e7e2ff"],
+      ["🚀","#ffe4d8"],["👽","#e2f3d9"],["🌈","#ffe6ed"],["☄️","#ffe5d3"],["🌌","#e1e2fb"],
+      ["🔭","#e7e9f8"],["🛸","#e0f3ef"],["💫","#fff0be"],["🌠","#f7e0ed"],["✨","#fff0bd"]
+    ]},
+    plants: {label:"花花草草", short:"花草", cards:[
+      ["🌷","#ffe5ec"],["🌻","#fff0bd"],["🌼","#fff3c9"],["🌹","#ffe0e6"],["🌸","#f9e1f2"],
+      ["🌺","#ffe1d8"],["🪻","#e8e0ff"],["🍀","#e2f2dc"],["🌿","#e1f1dd"],["🪴","#e7f0dd"],
+      ["🌵","#e2efdc"],["🌱","#e0f1d9"],["🍄","#f8e1df"],["🌾","#f4e8c7"],["🍃","#e1f2dc"]
+    ]}
+  };
+  const DIFFICULTIES = {
+    12:{label:"簡單",pairs:6,cols:4},
+    20:{label:"普通",pairs:10,cols:5},
+    30:{label:"困難",pairs:15,cols:6}
+  };
+  const $ = id => document.getElementById(id);
+  const homeScreen=$("homeScreen"), gameScreen=$("gameScreen"), victoryScreen=$("victoryScreen");
+  const board=$("board"), timerValue=$("timerValue"), bestValue=$("bestValue"), hintValue=$("hintValue");
+  const hintButton=$("hintButton"), restartButton=$("restartButton"), themeSelect=$("themeSelect");
+  const gameMessage=$("gameMessage"), modalBackdrop=$("modalBackdrop");
+  let selectedTheme="animals", selectedDifficulty=12;
+  let cards=[], opened=[], matched=0, hintsLeft=3, locked=false, hintActive=false;
+  let startTimestamp=0, elapsedSeconds=0, timerInterval=null, mismatchTimeout=null, hintTimeout=null;
+  let pendingAction=null, themeBeforeChange="animals", gameActive=false;
+  // 紀錄只存在目前頁面的記憶體中，不使用 localStorage。
+  const bestTimes={12:null,20:null,30:null};
+
+  function formatTime(totalSeconds){
+    const seconds=Math.max(0,Math.floor(totalSeconds));
+    const s=String(seconds%60).padStart(2,"0");
+    const minutes=Math.floor(seconds/60);
+    if(seconds>3600){
+      const hours=Math.floor(minutes/60);
+      return `${String(hours).padStart(2,"0")}:${String(minutes%60).padStart(2,"0")}:${s}`;
+    }
+    return `${String(minutes).padStart(2,"0")}:${s}`;
+  }
+  function getElapsed(){
+    return startTimestamp ? Math.floor((Date.now()-startTimestamp)/1000) : elapsedSeconds;
+  }
+  function updateTimer(){
+    if(gameActive && startTimestamp) elapsedSeconds=getElapsed();
+    timerValue.textContent=formatTime(elapsedSeconds);
+  }
+  function startTimer(){
+    stopTimer();
+    elapsedSeconds=0;
+    startTimestamp=Date.now();
+    timerValue.textContent="00:00";
+    timerInterval=setInterval(updateTimer,250);
+  }
+  function stopTimer(){
+    if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
+  }
+  function setHomeSelection(){
+    document.querySelectorAll(".theme-option").forEach(btn=>{
+      btn.setAttribute("aria-pressed",String(btn.dataset.theme===selectedTheme));
+    });
+    document.querySelectorAll(".difficulty-option").forEach(btn=>{
+      btn.setAttribute("aria-pressed",String(Number(btn.dataset.difficulty)===selectedDifficulty));
+    });
+  }
+  function updateBestDisplay(){
+    const best=bestTimes[selectedDifficulty];
+    bestValue.textContent=best===null?"尚無紀錄":formatTime(best);
+  }
+  function updateGameLabels(){
+    const diff=DIFFICULTIES[selectedDifficulty];
+    $("gameSubtitle").textContent=`${THEMES[selectedTheme].label}・${diff.label}`;
+    themeSelect.value=selectedTheme;
+    $("hintButton").textContent=`♡ 提示（${hintsLeft}）`;
+    hintValue.textContent=`${hintsLeft} 次`;
+    hintButton.disabled=hintsLeft<=0 || locked || hintActive || !gameActive;
+    restartButton.disabled=!gameActive;
+    themeSelect.disabled=!gameActive;
+    $("homeButton").disabled=!gameActive;
+    updateBestDisplay();
+  }
+  function cancelPendingTimers(){
+    if(mismatchTimeout){clearTimeout(mismatchTimeout);mismatchTimeout=null;}
+    if(hintTimeout){clearTimeout(hintTimeout);hintTimeout=null;}
+  }
+  function createDeck(){
+    const source=THEMES[selectedTheme].cards.slice(0,DIFFICULTIES[selectedDifficulty].pairs);
+    const deck=[];
+    source.forEach((item,index)=>{
+      deck.push({id:`${index}-a`,pair:index,symbol:item[0],bg:item[1],open:false,matched:false});
+      deck.push({id:`${index}-b`,pair:index,symbol:item[0],bg:item[1],open:false,matched:false});
+    });
+    for(let i=deck.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [deck[i],deck[j]]=[deck[j],deck[i]];
+    }
+    return deck;
+  }
+  function renderBoard(){
+    const cols=DIFFICULTIES[selectedDifficulty].cols;
+    board.style.gridTemplateColumns=`repeat(${cols},minmax(0,1fr))`;
+    board.innerHTML="";
+    cards.forEach((card,index)=>{
+      const button=document.createElement("button");
+      button.type="button";
+      button.className="card";
+      button.dataset.index=String(index);
+      button.setAttribute("aria-label",`第 ${index+1} 張卡牌，尚未翻開`);
+      button.setAttribute("aria-pressed","false");
+      button.innerHTML=`<span class="card-inner">
+        <span class="card-face card-back"><span class="heart">♥</span></span>
+        <span class="card-face card-front" style="--card-bg:${card.bg}"><span class="card-symbol">${card.symbol}</span></span>
+      </span>`;
+      button.addEventListener("click",()=>flipCard(index,button));
+      board.appendChild(button);
+    });
+    syncCardElements();
+  }
+  function syncCardElements(){
+    [...board.children].forEach((el,index)=>{
+      const card=cards[index];
+      el.classList.toggle("is-open",card.open || hintActive);
+      el.classList.toggle("is-matched",card.matched);
+      el.disabled=locked || hintActive || card.matched || card.open || !gameActive;
+      el.setAttribute("aria-pressed",String(card.open||card.matched||hintActive));
+      el.setAttribute("aria-label",card.matched?`第 ${index+1} 張卡牌，已配對`:((card.open||hintActive)?`第 ${index+1} 張卡牌，${card.symbol}`:`第 ${index+1} 張卡牌，尚未翻開`));
+    });
+  }
+  function flipCard(index){
+    if(!gameActive || locked || hintActive) return;
+    const card=cards[index];
+    if(!card || card.matched || card.open || opened.length>=2) return;
+    card.open=true;opened.push(index);
+    syncCardElements();
+    if(opened.length===2){
+      const [firstIndex,secondIndex]=opened;
+      const first=cards[firstIndex],second=cards[secondIndex];
+      if(first.pair===second.pair){
+        first.matched=true;second.matched=true;
+        first.open=false;second.open=false;
+        matched+=1;opened=[];
+        syncCardElements();
+        gameMessage.textContent="配對成功！找到一對好朋友 ♡";
+        updateGameLabels();
+        if(matched===DIFFICULTIES[selectedDifficulty].pairs){
+          // Give the match animation a brief moment before the result screen.
+          locked=true;
+          [...board.children].forEach(el=>el.disabled=true);
+          setTimeout(finishGame,420);
+        }else{
+          setTimeout(()=>{if(gameActive && !locked && !hintActive) gameMessage.textContent="太棒了！繼續尋找相同圖案 ✨";},800);
+        }
+      }else{
+        locked=true;
+        updateGameLabels();
+        gameMessage.textContent="差一點點！記住它們的位置吧 ♡";
+        mismatchTimeout=setTimeout(()=>{
+          first.open=false;second.open=false;opened=[];locked=false;mismatchTimeout=null;
+          syncCardElements();updateGameLabels();
+          gameMessage.textContent="再試試看，你一定找得到！";
+        },1500);
+      }
+    }else{
+      gameMessage.textContent="再翻開一張卡牌吧！";
+    }
+  }
+  function startGame(){
+    cancelPendingTimers();stopTimer();
+    selectedTheme=THEMES[selectedTheme]?selectedTheme:"animals";
+    selectedDifficulty=DIFFICULTIES[selectedDifficulty]?selectedDifficulty:12;
+    cards=createDeck();opened=[];matched=0;hintsLeft=3;locked=false;hintActive=false;
+    gameActive=true;pendingAction=null;
+    homeScreen.style.display="none";victoryScreen.classList.remove("show");victoryScreen.style.display="none";
+    gameScreen.style.display="block";
+    renderBoard();startTimer();updateGameLabels();
+    gameMessage.textContent="找出所有相同圖案吧！";
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+  function finishGame(){
+    if(!gameActive) return;
+    elapsedSeconds=getElapsed();
+    stopTimer();startTimestamp=0;gameActive=false;locked=false;hintActive=false;cancelPendingTimers();
+    const oldBest=bestTimes[selectedDifficulty];
+    const isNewBest=oldBest===null || elapsedSeconds<oldBest;
+    if(isNewBest) bestTimes[selectedDifficulty]=elapsedSeconds;
+    timerValue.textContent=formatTime(elapsedSeconds);
+    updateBestDisplay();
+    $("resultTime").textContent=formatTime(elapsedSeconds);
+    $("recordResult").textContent=isNewBest?"✧ 新紀錄！刷新最佳時間":"♡ 完成得好！繼續保持";
+    $("recordResult").style.background=isNewBest?"#eaf5ed":"#fff1e4";
+    $("recordResult").style.color=isNewBest?"#558c68":"#a57653";
+    gameScreen.style.display="none";victoryScreen.style.display="block";victoryScreen.classList.add("show");
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+  function useHint(){
+    if(!gameActive || locked || hintActive || hintsLeft<=0) return;
+    hintsLeft-=1;hintActive=true;locked=true;
+    // Temporarily reveal all cards, including matched cards; restore the exact pre-hint state afterward.
+    cards.forEach(card=>{if(!card.matched) card.open=true;});
+    syncCardElements();updateGameLabels();
+    gameMessage.textContent="仔細看一看，記住圖案的位置！";
+    hintTimeout=setTimeout(()=>{
+      cards.forEach(card=>{if(!card.matched) card.open=false;});
+      opened=[];hintActive=false;locked=false;hintTimeout=null;
+      syncCardElements();updateGameLabels();
+      gameMessage.textContent="提示結束，換你來配對囉！";
+    },2000);
+  }
+  function openModal({icon="♡",title,text,confirmLabel="確定",action}){
+    pendingAction=action;
+    $("modalIcon").textContent=icon;
+    $("modalTitle").textContent=title;
+    $("modalText").textContent=text;
+    $("modalConfirm").textContent=confirmLabel;
+    modalBackdrop.classList.add("show");
+    $("modalCancel").focus();
+  }
+  function closeModal(){
+    modalBackdrop.classList.remove("show");pendingAction=null;
+  }
+  function returnHome(){
+    cancelPendingTimers();stopTimer();
+    gameActive=false;locked=false;hintActive=false;startTimestamp=0;
+    // Keep the last chosen theme/difficulty in page memory, without persistent storage.
+    setHomeSelection();
+    gameScreen.style.display="none";victoryScreen.style.display="none";victoryScreen.classList.remove("show");
+    homeScreen.style.display="block";
+    closeModal();window.scrollTo({top:0,behavior:"smooth"});
+  }
+  document.querySelectorAll(".theme-option").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      selectedTheme=btn.dataset.theme;setHomeSelection();
+    });
+  });
+  document.querySelectorAll(".difficulty-option").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      selectedDifficulty=Number(btn.dataset.difficulty);setHomeSelection();
+    });
+  });
+  $("startButton").addEventListener("click",startGame);
+  hintButton.addEventListener("click",useHint);
+  restartButton.addEventListener("click",startGame);
+  $("replayButton").addEventListener("click",startGame);
+  $("homeButton").addEventListener("click",()=>{
+    if(!gameActive)return;
+    openModal({icon:"🏡",title:"要回到首頁嗎？",text:"目前遊戲進度將會消失，確定要返回首頁嗎？",action:returnHome});
+  });
+  $("victoryHomeButton").addEventListener("click",()=>{
+    openModal({icon:"🏡",title:"要回到首頁嗎？",text:"確定要返回首頁嗎？本次最佳時間紀錄會保留到關閉或重新載入頁面為止。",action:returnHome});
+  });
+  themeSelect.addEventListener("change",()=>{
+    const newTheme=themeSelect.value;
+    if(!gameActive || newTheme===selectedTheme)return;
+    themeBeforeChange=selectedTheme;
+    const proposed=newTheme;
+    openModal({icon:"🎨",title:"更換遊戲主題？",text:"更換主題後，目前遊戲進度將會消失，並以新主題重新開始。",action:()=>{
+      selectedTheme=proposed;startGame();
+    }});
+    // Keep current theme visible until the user confirms.
+    themeSelect.value=themeBeforeChange;
+  });
+  $("modalCancel").addEventListener("click",()=>{
+    closeModal();themeSelect.value=selectedTheme;
+  });
+  $("modalConfirm").addEventListener("click",()=>{
+    const action=pendingAction;closeModal();if(typeof action==="function")action();
+  });
+  modalBackdrop.addEventListener("click",event=>{
+    if(event.target===modalBackdrop){closeModal();themeSelect.value=selectedTheme;}
+  });
+  document.addEventListener("keydown",event=>{
+    if(event.key==="Escape" && modalBackdrop.classList.contains("show")){closeModal();themeSelect.value=selectedTheme;}
+  });
+  setHomeSelection();
+})();
+</script>
+</body>
+</html>
